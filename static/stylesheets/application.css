@@ -1,0 +1,15 @@
+.flash-error{
+    background-color: rgb(237, 112, 112);
+}
+
+.flash-success{
+    background-color: rgb(114, 203, 145);
+}
+
+li a {
+    margin-right: 3px;
+}
+
+li {
+    margin-top: 5px;
+}
