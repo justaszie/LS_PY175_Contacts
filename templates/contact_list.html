@@ -5,7 +5,7 @@
 <ul>
     {% for contact in contacts %}
         <li>
-            <a href="#">{{ contact.full_name }}</a>
+            <a href="#">{{ contact.full_name | title }}</a>
             <a href="#"><button>Edit</button></a>
             <a href="#"><button>Delete</button></a>
         </li>
