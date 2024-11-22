@@ -1,11 +1,16 @@
 import random
 from uuid import uuid4
+import re
 
 def get_full_name(contact):
+    first_name = contact['first_name']
+    middle_names = contact.get('middle_names', '')
+    last_name = contact.get('last_name', '')
     return ' '.join(
-        (contact['first_name'],
-         contact['middle_names'],
-         contact['last_name']))
+        (first_name,
+         middle_names if middle_names else '',
+         last_name if last_name else ''))
+
 
 def add_full_name(contacts):
     for contact in contacts:
@@ -35,3 +40,38 @@ def create_random_contact():
         'email_address': email_address,
     }
 
+def error_for_first_name(first_name):
+    first_name = first_name.strip() if first_name else None
+
+    if not first_name:
+        return 'First name is required'
+
+    if len(first_name) < 2:
+        return 'First name must be at least 2 letters'
+
+    return None
+
+def errors_for_phone_num(phone_number):
+    phone_number = phone_number.strip() if phone_number else None
+
+    if not phone_number:
+        return None
+
+    errors = []
+
+    if not phone_number.isdigit():
+        errors.append('Phone number must be digits only')
+    if len(phone_number) < 6:
+        errors.append('Phone number must be at least 6 digits')
+
+    return errors
+
+def error_for_email_addr(email_address):
+    email_address = email_address.strip() if email_address else None
+
+    if not email_address:
+        return None
+
+    email_pattern = r'^[a-z0-9\.]+@[a-z0-9]+(\.[a-z0-9]+)+$'
+    if not re.search(email_pattern, email_address, flags=re.IGNORECASE):
+        return 'Email address is not valid. Expected format: someaddr@example.com'

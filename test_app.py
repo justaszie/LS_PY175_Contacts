@@ -2,6 +2,7 @@ import unittest
 from app import app
 import os
 import yaml
+from utils import get_full_name
 
 class ContactsAppTest(unittest.TestCase):
     def setUp(self):
@@ -98,6 +99,92 @@ class ContactsAppTest(unittest.TestCase):
 
         response = self.client.get('/')
         self.assertEqual(response.status_code, 500)
+
+    def test_create_contact_success(self):
+        self.create_test_data([])
+        test_contacts = [{
+                'first_name': 'John',
+                'middle_names': 'C',
+                'last_name': 'Miller',
+                'phone_number': '8544189059',
+                'email_address': 'cmiller@example.com'
+            },
+            {
+                'first_name': 'John',
+                'email_address': 'j.cmiller@example.gov.nz'
+            },
+            {
+                'first_name': 'John Doe',
+                'email_address': 'j.cmiller@example.gov.nz'
+            },
+        ]
+        for test_contact in test_contacts:
+            response = self.client.post('/contacts',
+                                        data=test_contact,
+                                        follow_redirects=True)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertIn('has been added to your contacts', response.get_data(as_text=True))
+            self.assertIn(get_full_name(test_contact), response.get_data(as_text=True))
+
+    def test_create_contact_bad_phone(self):
+        test_contact =  {
+                'first_name': 'John',
+                'phone_number': '111',
+            }
+        response = self.client.post('/contacts', data=test_contact)
+        self.assertEqual(response.status_code, 422)
+        self.assertIn('6 digits', response.get_data(as_text=True))
+
+        test_contact =  {
+                'first_name': 'John',
+                'phone_number': '1234abcd1',
+            }
+        response = self.client.post('/contacts', data=test_contact)
+        self.assertEqual(response.status_code, 422)
+        self.assertIn('digits only', response.get_data(as_text=True))
+
+    def test_create_contact_bad_email(self):
+        invalid_values = ('aasd2.com', 'aaaaa@ccccc', 'john', 'katy@katy@katy', '@something.co.uk', 'example@example..gv')
+        test_contacts = [
+            {
+                'first_name' : 'John Doe',
+                'email_address': invalid_value
+            }
+            for invalid_value in invalid_values
+        ]
+        for test_contact in test_contacts:
+            response = self.client.post('/contacts',
+                                        data=test_contact,
+                                        follow_redirects=True)
+            self.assertEqual(response.status_code, 422)
+            self.assertIn('Email address is not valid', response.get_data(as_text=True))
+
+    def test_create_contact_first_name_error(self):
+        # 1. First name is required
+        test_contacts = [{
+            'first_name' : ' ',
+            'email_address': 'whatever'
+            },
+            {}
+        ]
+        for test_contact in test_contacts:
+            response = self.client.post('/contacts',
+                                        data=test_contact,
+                                        follow_redirects=True)
+            self.assertEqual(response.status_code, 422)
+            self.assertIn('First name is required', response.get_data(as_text=True))
+
+        # 1. First name must be >= 2 letters
+        test_contact = {
+            'first_name' : 'a',
+            }
+        response = self.client.post('/contacts',
+                                        data=test_contact,
+                                        follow_redirects=True)
+        self.assertEqual(response.status_code, 422)
+        self.assertIn('must be at least 2 letters', response.get_data(as_text=True))
+
 
     def tearDown(self):
         if os.path.exists(self.contacts_file_path):

@@ -18,6 +18,6 @@
     <p>Looks like you have no contacts yet. Hurry up and create some.</p>
 {% endif %}
 <div>
-    <a href="#"><button>+ New Contact</button></a>
+    <a href="{{ url_for('new_contact') }}"><button>+ New Contact</button></a>
 </div>
 {% endblock %}

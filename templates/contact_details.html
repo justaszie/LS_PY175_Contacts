@@ -1,11 +1,12 @@
 {% extends 'layout.html' %}
 {% block content %}
 <h2>Details for {{contact.full_name | title }} </h2>
+
 <p><strong>First name(s): </strong><span>{{ contact.first_name }}</span></p>
-<p><strong>Middle name(s): </strong><span>{{ contact.middle_names }}</span></p>
-<p><strong>Last name(s): </strong><span>{{ contact.last_name }}</span></p>
-<p><strong>Phone number: </strong><span>{{ contact.phone_number }}</span></p>
-<p><strong>Email address: </strong><span>{{ contact.email_address }}</span></p>
+{% if contact.middle_names is not none %} <p><strong>Middle name(s): </strong><span>{{ contact.middle_names }}</span></p>{% endif %}
+{% if contact.last_name is not none %}<p><strong>Last name(s): </strong><span>{{ contact.last_name }}</span></p>{% endif %}
+{% if contact.phone_number is not none %}<p><strong>Phone number: </strong><span>{{ contact.phone_number }}</span></p>{% endif %}
+{% if contact.email_address is not none %}<p><strong>Email address: </strong><span>{{ contact.email_address  }}</span></p>{% endif %}
 <div>
     <a href="#"><button>Edit</button></a>
     <a href="#"><button>Delete</button></a>

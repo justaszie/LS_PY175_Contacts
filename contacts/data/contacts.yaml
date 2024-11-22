@@ -1,19 +1,34 @@
-- id: '664edfe4-bfd8-4934-a46c-b3a267a2cd30'
-  first_name: 'John'
-  middle_names: 'C.'
-  last_name: 'Addams'
+- email_address: john@john.com
+  first_name: John
+  full_name: John C. Addams
+  id: 664edfe4-bfd8-4934-a46c-b3a267a2cd30
+  last_name: Addams
+  middle_names: C.
   phone_number: '123123'
-  email_address: 'john@john.com'
-- id: '4619d5d9-735a-49d2-9c81-fcd3d2d8a698'
-  first_name: 'Alice'
-  middle_names: 'kathleen'
-  last_name: 'Wannaby'
+- email_address: aa@gmail.com
+  first_name: Alice
+  full_name: Alice kathleen Wannaby
+  id: 4619d5d9-735a-49d2-9c81-fcd3d2d8a698
+  last_name: Wannaby
+  middle_names: kathleen
   phone_number: '4444'
-  email_address: 'aa@gmail.com'
-- id: '28be9195-9f46-48d7-8d4b-ecb551b895fe'
-  first_name: 'Katy'
-  middle_names: 'Elizabeth Lilly'
-  last_name: 'Watson'
+- email_address: kat@aol.com
+  first_name: Katy
+  full_name: Katy Elizabeth Lilly Watson
+  id: 28be9195-9f46-48d7-8d4b-ecb551b895fe
+  last_name: Watson
+  middle_names: Elizabeth Lilly
   phone_number: '855888'
-  email_address: 'kat@aol.com'
-
+- email_address: null
+  first_name: John
+  full_name: John  Doe
+  id: 35b9d035-99d6-4cf4-9a85-b5be94700601
+  last_name: Doe
+  middle_names: null
+  phone_number: null
+- email_address: justas@justas.com
+  first_name: Justas
+  id: e904d26a-043f-4a20-90aa-5d30fa20d816
+  last_name: Zieminykas
+  middle_names: Myself
+  phone_number: '111234'

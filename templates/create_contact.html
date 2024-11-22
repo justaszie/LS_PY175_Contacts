@@ -1,0 +1,35 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <h1>Create Contact</h1>
+    <form method="POST" action="{{ url_for('create_contact') }}">
+        <div class="contact-input">
+            <label for="first_name">First name: </label>
+            <input type="text" id="first_name" name="first_name" value="{{ request.form.first_name }}"/>
+            <em><small>(Required)</small></em>
+        </div>
+        <div class="contact-input">
+            <label for="middle_names">Middle name(s): </label>
+            <input type="text" id="middle_names" name="middle_names" value="{{ request.form.middle_names }}"/>
+        </div>
+        <div class="contact-input">
+            <label for="last_name">Last name: </label>
+            <input type="text" id="last_name" name="last_name" value="{{ request.form.last_name }}"/>
+        </div>
+        <div class="contact-input">
+            <label for="phone_number">Phone number: </label>
+            <input type="tel" id="phone_number" name="phone_number" value="{{ request.form.phone_number }}"/>
+        </div>
+        <div class="contact-input">
+            <label for="email_address">Email Address: </label>
+            <input type="email" id="email_address" name="email_address" value="{{ request.form.email_address }}"/>
+        </div>
+        <div class="submit-form">
+            <input type="submit" value="Create" />
+        </div>
+    </form>
+    <footer>
+        <div>
+            <a href="{{ url_for('home') }}">Back to List</a>
+        </div>
+    </footer>
+{% endblock %}
