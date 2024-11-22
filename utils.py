@@ -7,6 +7,14 @@ def get_full_name(contact):
          contact['middle_names'],
          contact['last_name']))
 
+def add_full_name(contacts):
+    for contact in contacts:
+        contact['full_name'] = get_full_name(contact)
+
+def get_contact_by_id(contact_id, contacts):
+    if not contacts:
+        return None
+    return next((contact for contact in contacts if contact['id'] == contact_id), None)
 
 def create_random_contact():
     names = ('John', 'Matthew', 'Kelly', 'Ronald', 'Alice', 'Michael', 'Lilly', 'Robert', 'Stefanie', 'Ryan', 'Elizabeth')

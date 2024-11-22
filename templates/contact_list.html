@@ -2,15 +2,21 @@
 {% block content %}
 <h1>Your contacts</h1>
 <!-- Static Data to test the layout of the page -->
-<ul>
-    {% for contact in contacts %}
-        <li>
-            <a href="#">{{ contact.full_name | title }}</a>
-            <a href="#"><button>Edit</button></a>
-            <a href="#"><button>Delete</button></a>
-        </li>
-    {% endfor %}
-</ul>
+{% if contacts | length > 0 %}
+    <ul>
+
+            {% for contact in contacts %}
+                <li>
+                    <a href="{{ url_for('view_contact', contact_id=contact.id) }}">{{ contact.full_name | title }}</a>
+                    <a href="#"><button>Edit</button></a>
+                    <a href="#"><button>Delete</button></a>
+                </li>
+            {% endfor %}
+
+    </ul>
+{% else %}
+    <p>Looks like you have no contacts yet. Hurry up and create some.</p>
+{% endif %}
 <div>
     <a href="#"><button>+ New Contact</button></a>
 </div>

@@ -8,11 +8,23 @@ class ContactsAppTest(unittest.TestCase):
         self.client = app.test_client()
         app.config["TESTING"] = True
 
+
+        # Setting up the directory and empty file for the contacts data
         root_dir = os.path.abspath(os.path.dirname(__name__))
         data_dir = os.path.join(root_dir, 'tests', 'data')
         os.makedirs(data_dir, exist_ok=True)
 
-        self.file_path = os.path.join(data_dir, 'contacts.yaml')
+        self.contacts_file_path = os.path.join(data_dir, 'contacts.yaml')
+
+
+    def contact_not_found_response(self, response):
+        self.assertEqual(response.status_code, 302)
+        follow_response = self.client.get(response.headers.get('Location'))
+        self.assertIn('not found', follow_response.get_data(as_text=True))
+
+    def create_test_data(self, test_data):
+        with open(self.contacts_file_path, 'w') as file:
+            yaml.dump(test_data, file)
 
     def test_contact_list(self):
         test_data = [
@@ -33,8 +45,7 @@ class ContactsAppTest(unittest.TestCase):
                 'email_address': 'j.miller@example.com'
             },
         ]
-        with open(self.file_path, 'w') as file:
-            yaml.dump(test_data, file)
+        self.create_test_data(test_data)
 
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
@@ -49,9 +60,48 @@ class ContactsAppTest(unittest.TestCase):
         for content in ('Delete', '+ New Contact', 'Edit', '<button'):
             self.assertIn(content, data)
 
+    def test_contact_details_success(self):
+        test_data = [
+            {
+                'id': '733809ee-a80c-4b30-aa0d-07d34320a44c',
+                'first_name': 'Lilly',
+                'middle_names': 'Elizabeth',
+                'last_name': 'Martinez',
+                'phone_number': '5696934238',
+                'email_address': 'l.martinez@example.com'
+            }
+        ]
+        self.create_test_data(test_data)
+
+        response = self.client.get('/contacts/733809ee-a80c-4b30-aa0d-07d34320a44c')
+
+        self.assertEqual(response.status_code, 200)
+        data = response.get_data(as_text=True)
+
+        attributes = [value for value in list(test_data[0].values())[1:]]
+        for attribute in attributes:
+            self.assertIn(attribute.lower(), data.lower())
+
+        for actions in ('Edit', 'Delete'):
+            self.assertIn(actions, data)
+
+    def test_contact_details_not_found(self):
+        self.create_test_data([])
+
+        response = self.client.get('/contacts/bad_id')
+        self.contact_not_found_response(response)
+
+    def test_problem_loading_contacts(self):
+        # Contacts file doesn't exist in this case
+        response = self.client.get('/contacts/any_id')
+        self.assertEqual(response.status_code, 500)
+
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 500)
 
     def tearDown(self):
-        pass
+        if os.path.exists(self.contacts_file_path):
+            os.remove(self.contacts_file_path)
 
 if __name__ == '__main__':
     unittest.main()
