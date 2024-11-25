@@ -185,6 +185,49 @@ class ContactsAppTest(unittest.TestCase):
         self.assertEqual(response.status_code, 422)
         self.assertIn('must be at least 2 letters', response.get_data(as_text=True))
 
+    def test_delete_option_available(self):
+        self.create_test_data([
+             {
+                'id': '556d2de4-49c3-43d4-b46a-6872627fde88',
+                'first_name': 'John',
+                'middle_names': 'C',
+                'last_name': 'Miller',
+                'phone_number': '8544189059',
+                'email_address': 'cmiller@example.com',
+            }
+         ])
+        response = self.client.get('/')
+        self.assertIn('action="/contacts/556d2de4-49c3-43d4-b46a-6872627fde88/delete"', response.get_data(as_text=True))
+
+        response = self.client.get('/contacts/556d2de4-49c3-43d4-b46a-6872627fde88')
+        self.assertIn('action="/contacts/556d2de4-49c3-43d4-b46a-6872627fde88/delete"', response.get_data(as_text=True))
+
+    def test_delete_success(self):
+        self.create_test_data([
+             {
+                'id': '556d2de4-49c3-43d4-b46a-6872627fde88',
+                'first_name': 'John',
+                'middle_names': 'C',
+                'last_name': 'Miller',
+                'phone_number': '8544189059',
+                'email_address': 'cmiller@example.com',
+            }
+            ,{
+                'id' : 'abc123',
+                'first_name': 'john',
+            }
+        ])
+        response = self.client.post('/contacts/556d2de4-49c3-43d4-b46a-6872627fde88/delete',
+                                    follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('556d2de4-49c3-43d4-b46a-6872627fde88', response.get_data(as_text=True))
+        self.assertIn('abc123', response.get_data(as_text=True))
+
+    def test_delete_contact_not_exist(self):
+        self.create_test_data([{'id' : 'abc123', 'first_name': 'john',}])
+
+        response = self.client.post('/contacts/123someid/delete', follow_redirects=True)
+        self.assertIn('not found', response.get_data(as_text=True))
 
     def tearDown(self):
         if os.path.exists(self.contacts_file_path):

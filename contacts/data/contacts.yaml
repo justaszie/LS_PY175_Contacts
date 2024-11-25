@@ -1,10 +1,10 @@
-- email_address: john@john.com
+- email_address: null
   first_name: John
-  full_name: John C. Addams
-  id: 664edfe4-bfd8-4934-a46c-b3a267a2cd30
+  full_name: John Kelly Addams
+  id: 8f8a2f66-fbeb-4b1b-9a8a-547678918034
   last_name: Addams
-  middle_names: C.
-  phone_number: '123123'
+  middle_names: Kelly
+  phone_number: '91999999'
 - email_address: aa@gmail.com
   first_name: Alice
   full_name: Alice kathleen Wannaby
@@ -19,16 +19,17 @@
   last_name: Watson
   middle_names: Elizabeth Lilly
   phone_number: '855888'
-- email_address: null
-  first_name: John
-  full_name: John  Doe
-  id: 35b9d035-99d6-4cf4-9a85-b5be94700601
-  last_name: Doe
-  middle_names: null
-  phone_number: null
 - email_address: justas@justas.com
   first_name: Justas
+  full_name: Justas Myself Zieminykas
   id: e904d26a-043f-4a20-90aa-5d30fa20d816
   last_name: Zieminykas
   middle_names: Myself
   phone_number: '111234'
+- email_address: null
+  first_name: Abe
+  full_name: Abe  Malcolm
+  id: 08f50707-3769-4d8f-9e6d-58cbdd086fd4
+  last_name: Malcolm
+  middle_names: null
+  phone_number: '141213124124'

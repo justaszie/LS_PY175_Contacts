@@ -1,0 +1,35 @@
+{% extends 'layout.html' %}
+{% block content %}
+<h1>Edit Contact</h1>
+    <form method="POST" action="{{ url_for('edit_contact', contact_id=contact.id) }}">
+        <div class="contact-input">
+            <label for="first_name">First name: </label>
+            <input type="text" id="first_name" name="first_name" value="{{ request.form.first_name if request.form else contact.first_name}}"/>
+            <em><small>(Required)</small></em>
+        </div>
+        <div class="contact-input">
+            <label for="middle_names">Middle name(s): </label>
+            <input type="text" id="middle_names" name="middle_names" value="{{ request.form.middle_names if request.form else contact.middle_names | optional_value }}"/>
+        </div>
+        <div class="contact-input">
+            <label for="last_name">Last name: </label>
+            <input type="text" id="last_name" name="last_name" value="{{ request.form.last_name if request.form else contact.last_name | optional_value }}"/>
+        </div>
+        <div class="contact-input">
+            <label for="phone_number">Phone number: </label>
+            <input type="tel" id="phone_number" name="phone_number" value="{{ request.form.phone_number if request.form else contact.phone_number| optional_value }}"/>
+        </div>
+        <div class="contact-input">
+            <label for="email_address">Email Address: </label>
+            <input type="email" id="email_address" name="email_address" value="{{ request.form.email_address if request.form else contact.email_address| optional_value }}"/>
+        </div>
+        <div class="submit-form">
+            <input type="submit" value="Update" />
+        </div>
+    </form>
+    <footer>
+        <div>
+            <a href="{{ url_for('home') }}">Back to List</a>
+        </div>
+    </footer>
+{% endblock %}

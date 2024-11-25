@@ -25,3 +25,8 @@ div.submit-form {
 div.contact-input{
     margin-top: 5px;
 }
+
+.contact-list-cta {
+    display: inline;
+    margin-right: 3px;
+}
