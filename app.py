@@ -158,7 +158,8 @@ def edit_contact(contact_id):
         if errors:
             for error in errors:
                 flash(error, 'error')
-            return render_template('edit_contact.html', contact=contact, form_data=request.form), 422
+            contact = {'id': contact['id']} | request.form
+            return render_template('edit_contact.html', contact=contact), 422
 
         updated_data = get_clean_contact_data(request.form)
         contact.update(updated_data)
