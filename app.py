@@ -23,7 +23,6 @@ def get_contacts_file_path():
                                  CONTACTS_FILE_NAME)
     return file_path
 
-# TODO : full name shouldn't be added here but ony in the views that require it
 def load_contacts():
     file_path = get_contacts_file_path()
     try:
@@ -33,12 +32,8 @@ def load_contacts():
     except FileNotFoundError:
             return None
 
-
-
 def erorrs_in_contact_data(form_data):
     first_name = form_data.get('first_name')
-    middle_names = form_data.get('middle_names')
-    last_name = form_data.get('last_name')
     phone_number = form_data.get('phone_number')
     email_address = form_data.get('email_address')
 
@@ -47,7 +42,6 @@ def erorrs_in_contact_data(form_data):
     # }'error_for_first_name', 'error_for_phone_num', 'error_for_email_addr')
     # errors = [error_checker() for error_checker in error_checkers]
 
-    # TODO - implement validations
     errors = []
     error = error_for_first_name(first_name)
     if error:
@@ -64,27 +58,46 @@ def erorrs_in_contact_data(form_data):
     return errors if errors else None
 
 def get_clean_contact_data(form_data):
-    first_name = form_data.get('first_name')
-    middle_names = form_data.get('middle_names')
-    last_name = form_data.get('last_name')
-    phone_number = form_data.get('phone_number')
-    email_address = form_data.get('email_address')
+    attributes = (
+        'first_name',
+        'middle_names',
+        'last_name',
+        'phone_number',
+        'email_address',
+    )
 
-    first_name = first_name.strip()
-    middle_names = middle_names.strip() if middle_names else None
-    last_name = last_name.strip() if last_name else None
-    phone_number = phone_number.strip() if phone_number else None
-    email_address = email_address.strip() if email_address else None
+    contact_data = {attribute: form_data.get(attribute) for attribute in attributes}
+    contact_data = {
+        key: value.strip() if value else None
+        for key, value in contact_data.items()
+    }
 
-    contact = {
-            'first_name': first_name,
-            'middle_names': middle_names,
-            'last_name': last_name,
-            'phone_number': phone_number,
-            'email_address': email_address
-        }
+    # first_name =
+    # middle_names = form_data.get('middle_names')
+    # last_name = form_data.get('last_name')
+    # phone_number = form_data.get('phone_number')
+    # email_address = form_data.get('email_address')
 
-    return contact
+    # first_name = first_name.strip()
+    # middle_names = middle_names.strip() if middle_names else None
+    # last_name = last_name.strip() if last_name else None
+    # phone_number = phone_number.strip() if phone_number else None
+    # email_address = email_address.strip() if email_address else None
+
+    # contact = {
+    #         'first_name': first_name,
+    #         'middle_names': middle_names,
+    #         'last_name': last_name,
+    #         'phone_number': phone_number,
+    #         'email_address': email_address
+    #     }
+
+    return contact_data
+
+    # 1. Store dict keys: first_name, middle_names, etc., in a tuple
+    # 2. Iterate through the keys And assign data from the form as value for each key
+    # 3. Iterare through dict items, strip value if it's not None, else None
+    # 4. Return the dict
 
 
 @app.route('/')

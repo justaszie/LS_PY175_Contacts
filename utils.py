@@ -13,8 +13,9 @@ def get_full_name(contact):
 
 
 def add_full_name(contacts):
-    for contact in contacts:
-        contact['full_name'] = get_full_name(contact)
+    if contacts is not None:
+        for contact in contacts:
+            contact['full_name'] = get_full_name(contact)
 
 def get_contact_by_id(contact_id, contacts):
     if not contacts:
