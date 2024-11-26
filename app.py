@@ -29,7 +29,6 @@ def load_contacts():
     try:
         with open(file_path, 'r') as file:
             contacts = yaml.safe_load(file)
-            add_full_name(contacts)
             return contacts if contacts else []
     except FileNotFoundError:
             return None
@@ -78,7 +77,6 @@ def get_clean_contact_data(form_data):
     email_address = email_address.strip() if email_address else None
 
     contact = {
-            'id': str(uuid4()),
             'first_name': first_name,
             'middle_names': middle_names,
             'last_name': last_name,
@@ -92,17 +90,22 @@ def get_clean_contact_data(form_data):
 @app.route('/')
 def home():
     contacts = load_contacts()
+
     if contacts is None:
-        abort(500, description = 'Problem with loading contacts. Please try again later')
+        abort(500, description = 'Problem with loading contacts. Please try again later')\
+
+    add_full_name(contacts)
     contacts = [ {'id': contact['id'], 'full_name': contact['full_name']} for contact in contacts ]
     return render_template('contact_list.html', contacts=contacts)
 
 @app.route('/contacts/<contact_id>')
 def view_contact(contact_id):
     contacts = load_contacts()
+
     if contacts is None:
         abort(500, description = 'Problem with loading contacts. Please try again later')
 
+    add_full_name(contacts)
     contact = get_contact_by_id(contact_id, contacts)
     if not contact:
         flash('Contact not found.', 'error')
@@ -122,7 +125,7 @@ def create_contact():
             flash(error, 'error')
         return render_template('create_contact.html'), 422
 
-    contact = get_clean_contact_data(request.form)
+    contact = get_clean_contact_data(request.form) | {'id':str(uuid4())}
 
     contacts = load_contacts()
     contacts.append(contact)
@@ -161,7 +164,7 @@ def edit_contact(contact_id):
             contact = {'id': contact['id']} | request.form
             return render_template('edit_contact.html', contact=contact), 422
 
-        updated_data = get_clean_contact_data(request.form)
+        updated_data = {'id':contact['id']} | get_clean_contact_data(request.form)
         contact.update(updated_data)
         with open(get_contacts_file_path(), 'w') as file:
             yaml.dump(contacts, file)
