@@ -3,6 +3,7 @@ import os
 import yaml
 from utils import *
 from uuid import uuid4
+from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = '*T2<3>g;=E1Kc+N;^GP='
@@ -72,32 +73,28 @@ def get_clean_contact_data(form_data):
         for key, value in contact_data.items()
     }
 
-    # first_name =
-    # middle_names = form_data.get('middle_names')
-    # last_name = form_data.get('last_name')
-    # phone_number = form_data.get('phone_number')
-    # email_address = form_data.get('email_address')
-
-    # first_name = first_name.strip()
-    # middle_names = middle_names.strip() if middle_names else None
-    # last_name = last_name.strip() if last_name else None
-    # phone_number = phone_number.strip() if phone_number else None
-    # email_address = email_address.strip() if email_address else None
-
-    # contact = {
-    #         'first_name': first_name,
-    #         'middle_names': middle_names,
-    #         'last_name': last_name,
-    #         'phone_number': phone_number,
-    #         'email_address': email_address
-    #     }
-
     return contact_data
 
-    # 1. Store dict keys: first_name, middle_names, etc., in a tuple
-    # 2. Iterate through the keys And assign data from the form as value for each key
-    # 3. Iterare through dict items, strip value if it's not None, else None
-    # 4. Return the dict
+def requires_contact(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        # TODO - check if we need to handle the case where contact_id is not given
+        contact_id = kwargs.get('contact_id')
+        contacts = load_contacts()
+        if contacts is None:
+            abort(500, description = 'Problem with loading contacts. Please try again later')
+
+        contact = get_contact_by_id(contact_id, contacts)
+
+        if contact is None:
+            flash('Contact not found.', 'error')
+            return redirect(url_for('home'))
+
+        result = func(contact=contact, *args, **kwargs)
+
+        return result
+
+    return wrapper
 
 
 @app.route('/')
@@ -112,17 +109,17 @@ def home():
     return render_template('contact_list.html', contacts=contacts)
 
 @app.route('/contacts/<contact_id>')
-def view_contact(contact_id):
-    contacts = load_contacts()
+@requires_contact
+def view_contact(contact, contact_id):
+    # contacts = load_contacts()
 
-    if contacts is None:
-        abort(500, description = 'Problem with loading contacts. Please try again later')
+    # if contacts is None:
+    #     abort(500, description = 'Problem with loading contacts. Please try again later')
 
-    add_full_name(contacts)
-    contact = get_contact_by_id(contact_id, contacts)
-    if not contact:
-        flash('Contact not found.', 'error')
-        return redirect(url_for('home'))
+    # add_full_name(contacts)
+    # contact = get_contact_by_id(contact_id, contacts)
+
+    contact['full_name'] = get_full_name(contact)
 
     return render_template('contact_details.html', contact=contact)
 
@@ -149,27 +146,13 @@ def create_contact():
     return redirect(url_for('view_contact', contact_id=contact['id']))
 
 @app.route('/contacts/<contact_id>/edit', methods=['GET', 'POST'])
-def edit_contact(contact_id):
+@requires_contact
+def edit_contact(contact, contact_id):
     if request.method == 'GET':
-        contacts = load_contacts()
-        if contacts is None:
-            abort(500, description = 'Problem with loading contacts. Please try again later')
-        contact = get_contact_by_id(contact_id, contacts)
-        if not contact:
-            flash('Contact not found.', 'error')
-            return redirect(url_for('home'))
         if contact:
             return render_template('edit_contact.html', contact=contact, form_data=None)
 
     elif request.method == 'POST':
-        contacts = load_contacts()
-        if contacts is None:
-            abort(500, description = 'Problem with loading contacts. Please try again later')
-        contact = get_contact_by_id(contact_id, contacts)
-        if not contact:
-            flash('Contact not found.', 'error')
-            return redirect(url_for('home'))
-
         errors = erorrs_in_contact_data(request.form)
         if errors:
             for error in errors:
@@ -178,7 +161,12 @@ def edit_contact(contact_id):
             return render_template('edit_contact.html', contact=contact), 422
 
         updated_data = {'id':contact['id']} | get_clean_contact_data(request.form)
-        contact.update(updated_data)
+
+        contacts = load_contacts()
+        for existing_contact in contacts:
+            if existing_contact['id'] == contact_id:
+                existing_contact.update(updated_data)
+
         with open(get_contacts_file_path(), 'w') as file:
             yaml.dump(contacts, file)
 
@@ -187,14 +175,9 @@ def edit_contact(contact_id):
 
 
 @app.route('/contacts/<contact_id>/delete', methods=['POST'])
-def delete_contact(contact_id):
+@requires_contact
+def delete_contact(contact, contact_id):
     contacts = load_contacts()
-
-    contact = get_contact_by_id(contact_id, contacts)
-    if not contact:
-        flash('Contact not found.', 'error')
-        return redirect(url_for('home'))
-
     contacts.remove(contact)
     with open(get_contacts_file_path(), 'w') as file:
         yaml.dump(contacts, file)
@@ -204,7 +187,6 @@ def delete_contact(contact_id):
 
 # Creating a filter that will display empty strings when non-mandatory
 # fields are null in the data storage
-
 def display_optional_value(value):
     return value if value is not None else ''
 
