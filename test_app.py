@@ -131,6 +131,7 @@ class ContactsAppTest(unittest.TestCase):
             self.assertIn(get_full_name(test_contact), response.get_data(as_text=True))
 
     def test_create_contact_bad_phone(self):
+        self.create_test_data([])
         test_contact =  {
                 'first_name': 'John',
                 'phone_number': '111',
@@ -148,6 +149,7 @@ class ContactsAppTest(unittest.TestCase):
         self.assertIn('digits only', response.get_data(as_text=True))
 
     def test_create_contact_bad_email(self):
+        self.create_test_data([])
         invalid_values = ('aasd2.com', 'aaaaa@ccccc', 'john', 'katy@katy@katy', '@something.co.uk', 'example@example..gv')
         test_contacts = [
             {
@@ -165,6 +167,7 @@ class ContactsAppTest(unittest.TestCase):
 
     def test_create_contact_first_name_error(self):
         # 1. First name is required
+        self.create_test_data([])
         test_contacts = [{
             'first_name' : ' ',
             'email_address': 'whatever'

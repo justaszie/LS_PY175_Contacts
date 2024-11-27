@@ -67,52 +67,44 @@ def update_contacts(contacts):
     with open(get_contacts_file_path(), 'w') as file:
         yaml.dump(contacts, file)
 
-def requires_contact(func):
+def requires_contacts(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        # TODO - check if we need to handle the case where contact_id is not given
-        contact_id = kwargs.get('contact_id')
         contacts = load_contacts()
         if contacts is None:
             abort(500, description = 'Problem with loading contacts. Please try again later')
+        else:
+            result = func(contacts=contacts, *args, **kwargs)
+            return result
+    return wrapper
 
+def requires_contact(func):
+    @wraps(func)
+    @requires_contacts
+    def wrapper(contacts, *args, **kwargs):
+        contact_id = kwargs.get('contact_id')
         contact = get_contact_by_id(contact_id, contacts)
 
         if contact is None:
             flash('Contact not found.', 'error')
             return redirect(url_for('home'))
 
-        result = func(contact=contact, *args, **kwargs)
-
+        result = func(contacts=contacts, contact=contact, *args, **kwargs)
         return result
-
     return wrapper
 
 
 @app.route('/')
-def home():
-    contacts = load_contacts()
-
-    if contacts is None:
-        abort(500, description = 'Problem with loading contacts. Please try again later')\
-
+@requires_contacts
+def home(contacts):
     add_full_name(contacts)
     contacts = [ {'id': contact['id'], 'full_name': contact['full_name']} for contact in contacts ]
     return render_template('contact_list.html', contacts=contacts)
 
 @app.route('/contacts/<contact_id>')
 @requires_contact
-def view_contact(contact, contact_id):
-    # contacts = load_contacts()
-
-    # if contacts is None:
-    #     abort(500, description = 'Problem with loading contacts. Please try again later')
-
-    # add_full_name(contacts)
-    # contact = get_contact_by_id(contact_id, contacts)
-
+def view_contact(contacts, contact, contact_id):
     contact['full_name'] = get_full_name(contact)
-
     return render_template('contact_details.html', contact=contact)
 
 @app.route('/contacts/new')
@@ -120,7 +112,8 @@ def new_contact():
     return render_template('create_contact.html')
 
 @app.route('/contacts', methods=["POST"])
-def create_contact():
+@requires_contacts
+def create_contact(contacts):
     errors = erorrs_in_contact_data(request.form)
     if errors:
         for error in errors:
@@ -138,7 +131,7 @@ def create_contact():
 
 @app.route('/contacts/<contact_id>/edit', methods=['GET', 'POST'])
 @requires_contact
-def edit_contact(contact, contact_id):
+def edit_contact(contacts, contact, contact_id):
     if request.method == 'GET':
         if contact:
             return render_template('edit_contact.html', contact=contact, form_data=None)
@@ -153,7 +146,6 @@ def edit_contact(contact, contact_id):
 
         updated_data = {'id':contact['id']} | get_clean_contact_data(request.form)
 
-        contacts = load_contacts()
         for existing_contact in contacts:
             if existing_contact['id'] == contact_id:
                 existing_contact.update(updated_data)
@@ -166,8 +158,7 @@ def edit_contact(contact, contact_id):
 
 @app.route('/contacts/<contact_id>/delete', methods=['POST'])
 @requires_contact
-def delete_contact(contact, contact_id):
-    contacts = load_contacts()
+def delete_contact(contacts, contact, contact_id):
     contacts.remove(contact)
     update_contacts(contacts)
 
