@@ -34,27 +34,15 @@ def load_contacts():
             return None
 
 def erorrs_in_contact_data(form_data):
-    first_name = form_data.get('first_name')
-    phone_number = form_data.get('phone_number')
-    email_address = form_data.get('email_address')
-
-    # error_checkers = {
-    #     'first_name':
-    # }'error_for_first_name', 'error_for_phone_num', 'error_for_email_addr')
-    # errors = [error_checker() for error_checker in error_checkers]
-
+    validation_callbacks = {
+        'first_name': errors_for_first_name,
+        'phone_number': errors_for_phone_num,
+        'email_address': errors_for_email_addr,
+    }
     errors = []
-    error = error_for_first_name(first_name)
-    if error:
-        errors.append(error)
-
-    phone_errors = errors_for_phone_num(phone_number)
-    if phone_errors:
-        errors.extend(phone_errors)
-
-    error = error_for_email_addr(email_address)
-    if error:
-        errors.append(error)
+    for attribute_name, validation_callback in validation_callbacks.items():
+        attribute_value = form_data.get(attribute_name)
+        errors.extend(validation_callback(attribute_value))
 
     return errors if errors else None
 
@@ -74,6 +62,10 @@ def get_clean_contact_data(form_data):
     }
 
     return contact_data
+
+def update_contacts(contacts):
+    with open(get_contacts_file_path(), 'w') as file:
+        yaml.dump(contacts, file)
 
 def requires_contact(func):
     @wraps(func)
@@ -139,8 +131,7 @@ def create_contact():
 
     contacts = load_contacts()
     contacts.append(contact)
-    with open(get_contacts_file_path(), 'w') as file:
-        yaml.dump(contacts, file)
+    update_contacts(contacts)
 
     flash(f'{get_full_name(contact)} has been added to your contacts', 'success')
     return redirect(url_for('view_contact', contact_id=contact['id']))
@@ -167,8 +158,7 @@ def edit_contact(contact, contact_id):
             if existing_contact['id'] == contact_id:
                 existing_contact.update(updated_data)
 
-        with open(get_contacts_file_path(), 'w') as file:
-            yaml.dump(contacts, file)
+        update_contacts(contacts)
 
         flash(f'{get_full_name(updated_data)} has been updated.', 'success')
         return redirect(url_for('view_contact', contact_id=contact['id']))
@@ -179,8 +169,7 @@ def edit_contact(contact, contact_id):
 def delete_contact(contact, contact_id):
     contacts = load_contacts()
     contacts.remove(contact)
-    with open(get_contacts_file_path(), 'w') as file:
-        yaml.dump(contacts, file)
+    update_contacts(contacts)
 
     flash('The contact has been deleted', 'success')
     return redirect(url_for('home'))

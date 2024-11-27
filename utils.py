@@ -41,22 +41,22 @@ def create_random_contact():
         'email_address': email_address,
     }
 
-def error_for_first_name(first_name):
+def errors_for_first_name(first_name):
     first_name = first_name.strip() if first_name else None
 
     if not first_name:
-        return 'First name is required'
+        return ['First name is required']
 
     if len(first_name) < 2:
-        return 'First name must be at least 2 letters'
+        return ['First name must be at least 2 letters']
 
-    return None
+    return []
 
 def errors_for_phone_num(phone_number):
     phone_number = phone_number.strip() if phone_number else None
 
     if not phone_number:
-        return None
+        return []
 
     errors = []
 
@@ -67,12 +67,14 @@ def errors_for_phone_num(phone_number):
 
     return errors
 
-def error_for_email_addr(email_address):
+def errors_for_email_addr(email_address):
     email_address = email_address.strip() if email_address else None
 
     if not email_address:
-        return None
+        return []
 
     email_pattern = r'^[a-z0-9\.]+@[a-z0-9]+(\.[a-z0-9]+)+$'
     if not re.search(email_pattern, email_address, flags=re.IGNORECASE):
-        return 'Email address is not valid. Expected format: someaddr@example.com'
+        return ['Email address is not valid. Expected format: someaddr@example.com']
+
+    return []
