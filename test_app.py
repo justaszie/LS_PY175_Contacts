@@ -26,7 +26,8 @@ class ContactsAppTest(unittest.TestCase):
         with open(self.contacts_file_path, 'w') as file:
             yaml.dump(test_data, file)
 
-    def test_contact_list(self):
+    # ---- CONTACT LIST TESTS ------
+    def test_contact_list_success(self):
         test_data = [
             {
                 'id': '733809ee-a80c-4b30-aa0d-07d34320a44c',
@@ -60,6 +61,11 @@ class ContactsAppTest(unittest.TestCase):
         for content in ('Delete', '+ New Contact', 'Edit', '<button'):
             self.assertIn(content, data)
 
+    def test_contact_list_problem_loading_contacts(self):
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 500)
+
+    # ---- CONTACT DETAILS TESTS ------
     def test_contact_details_success(self):
         test_data = [
             {
@@ -91,14 +97,12 @@ class ContactsAppTest(unittest.TestCase):
         response = self.client.get('/contacts/bad_id')
         self.contact_not_found_response(response)
 
-    def test_problem_loading_contacts(self):
+    def test_contact_details_problem_loading_contacts(self):
         # Contacts file doesn't exist in this case
         response = self.client.get('/contacts/any_id')
         self.assertEqual(response.status_code, 500)
 
-        response = self.client.get('/')
-        self.assertEqual(response.status_code, 500)
-
+    # ---- CREATE CONTACT TESTS ------
     def test_create_contact_success(self):
         self.create_test_data([])
         test_contacts = [{
@@ -184,6 +188,7 @@ class ContactsAppTest(unittest.TestCase):
         self.assertEqual(response.status_code, 422)
         self.assertIn('must be at least 2 letters', response.get_data(as_text=True))
 
+    # ---- DELETE CONTACT TESTS ------
     def test_delete_option_available(self):
         self.create_test_data([
              {
@@ -222,20 +227,19 @@ class ContactsAppTest(unittest.TestCase):
         self.assertNotIn('556d2de4-49c3-43d4-b46a-6872627fde88', response.get_data(as_text=True))
         self.assertIn('abc123', response.get_data(as_text=True))
 
-    def test_delete_contact_not_exist(self):
+    def test_delete_contact_not_found(self):
         self.create_test_data([{'id' : 'abc123', 'first_name': 'john',}])
 
-        response = self.client.post('/contacts/123someid/delete', follow_redirects=True)
-        self.assertIn('not found', response.get_data(as_text=True))
+        response = self.client.post('/contacts/123someid/delete')
+        self.contact_not_found_response(response)
 
-    # --- TESTS FOR EDITING CONTACT ----
-    # [DONE] 1. Edit Contact available on home page and contact details pages
-    # [DONE] 2. Edit Form is rendered with existing data
-    # [DONE] 3. Edit submit -> success
-    # 4. Edit Submit -> first name errors
-    # 5. Edit Submit -> phone number validation
-    # 6. Edit Submit -> email validation errors
 
+    def test_delete_contact_problem_loading_contacts(self):
+        # Contacts file doesn't exist in this case
+        response = self.client.post('/contacts/any_id/delete')
+        self.assertEqual(response.status_code, 500)
+
+    # ---- EDIT CONTACT TESTS ------
     def test_edit_contact_available(self):
         self.create_test_data([{
             'id':'abc123',
@@ -326,13 +330,11 @@ class ContactsAppTest(unittest.TestCase):
 
 
     def test_edit_contact_bad_email(self):
-        # ------ Update logic
         self.create_test_data([{
                 'id': '56d2de4-49c3-43d4-b46a-6872627fde88',
                 'first_name': 'John',
                 'email_address': 'john@john.com',
             }])
-
 
         invalid_values = ('aasd2.com', 'aaaaa@ccccc', 'john', 'katy@katy@katy', '@something.co.uk', 'example@example..gv')
         test_updated_contacts = [
@@ -381,6 +383,30 @@ class ContactsAppTest(unittest.TestCase):
                                         follow_redirects=True)
         self.assertEqual(response.status_code, 422)
         self.assertIn('must be at least 2 letters', response.get_data(as_text=True))
+
+    def test_edit_contact_not_found(self):
+        self.create_test_data([{'id' : 'abc123', 'first_name': 'john',}])
+
+        response = self.client.get('/contacts/123someid/edit')
+        self.contact_not_found_response(response)
+
+        response = self.client.post(
+            '/contacts/123someid/edit',
+            data={'id':'1213', 'first_name': 'aaa'}
+        )
+        self.contact_not_found_response(response)
+
+    def test_edit_contact_problem_loading_contacts(self):
+        # Contacts file doesn't exist in this case
+        response = self.client.get('/contacts/123someid/edit')
+        self.assertEqual(response.status_code, 500)
+
+        response = self.client.post(
+            '/contacts/123someid/edit',
+            data={'id':'1213', 'first_name': 'aaa'}
+        )
+        self.assertEqual(response.status_code, 500)
+
 
     def tearDown(self):
         if os.path.exists(self.contacts_file_path):
