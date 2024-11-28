@@ -57,7 +57,7 @@ def get_clean_contact_data(form_data):
 
     contact_data = {attribute: form_data.get(attribute) for attribute in attributes}
     contact_data = {
-        key: value.strip() if value else None
+        key: value.strip() if value and not value.isspace() else None
         for key, value in contact_data.items()
     }
 
