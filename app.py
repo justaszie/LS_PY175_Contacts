@@ -4,6 +4,7 @@ import yaml
 from utils import *
 from uuid import uuid4
 from functools import wraps
+from werkzeug.exceptions import InternalServerError
 
 app = Flask(__name__)
 app.secret_key = '*T2<3>g;=E1Kc+N;^GP='
@@ -31,7 +32,7 @@ def load_contacts():
             contacts = yaml.safe_load(file)
             return contacts if contacts else []
     except FileNotFoundError:
-            return None
+            raise InternalServerError('Problem while loading contacts. Try again later')
 
 def erorrs_in_contact_data(form_data):
     validation_callbacks = {
@@ -70,12 +71,12 @@ def update_contacts(contacts):
 def requires_contacts(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        contacts = load_contacts()
-        if contacts is None:
-            abort(500, description = 'Problem with loading contacts. Please try again later')
-        else:
-            result = func(contacts=contacts, *args, **kwargs)
-            return result
+        try:
+            contacts = load_contacts()
+        except InternalServerError as e:
+            abort(500, description=e.description)
+        result = func(contacts=contacts, *args, **kwargs)
+        return result
     return wrapper
 
 def requires_contact(func):
