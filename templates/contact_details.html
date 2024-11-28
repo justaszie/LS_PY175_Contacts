@@ -11,7 +11,7 @@
     <div class="contact-list-cta">
         <a href="{{ url_for('edit_contact', contact_id=contact.id)}}"><button>Edit</button></a>
     </div>
-    <form method="POST" action="{{ url_for('delete_contact', contact_id=contact.id)}}" class="contact-list-cta">
+    <form method="POST" action="{{ url_for('delete_contact', contact_id=contact.id)}}" class="contact-list-cta delete">
         <button>Delete</button>
     </form>
 </div>

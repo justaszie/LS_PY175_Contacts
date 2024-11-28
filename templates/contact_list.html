@@ -8,7 +8,7 @@
                 <li>
                     <a href="{{ url_for('view_contact', contact_id=contact.id) }}">{{ contact.full_name | title }}</a>
                     <a href="{{ url_for('edit_contact', contact_id=contact.id)}}"><button>Edit</button></a>
-                    <form method="POST" action="{{ url_for('delete_contact', contact_id=contact.id)}}" class="contact-list-cta">
+                    <form method="POST" action="{{ url_for('delete_contact', contact_id=contact.id)}}" class="contact-list-cta delete">
                         <button>Delete</button>
                     </form>
                 </li>
