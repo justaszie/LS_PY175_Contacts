@@ -1,5 +1,6 @@
 from flask import Flask, render_template, redirect, flash, url_for, abort, request, g
-from contacts.file_storage import DataHandlingError, ContactsFileStorage
+# from contacts.file_storage import ContactsFileStorage, DataHandlingError
+from contacts.db_storage import ContactsDatabaseStorage, DataHandlingError
 import os
 import secrets
 import yaml
@@ -73,9 +74,14 @@ def get_clean_contact_data(form_data):
 #         yaml.dump(contacts, file)
 
 @app.before_request
-def load_db():
+def load_storage():
     is_testing_env = app.config.get('TESTING', False)
-    g.storage = ContactsFileStorage(is_testing_env)
+    g.storage = ContactsDatabaseStorage(is_testing_env)
+
+@app.teardown_appcontext
+def close_storage(exception=None):
+    if hasattr(g, 'storage'):
+        g.storage.close_connection()
 
 def requires_contacts(func):
     @wraps(func)

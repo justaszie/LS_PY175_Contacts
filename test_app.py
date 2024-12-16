@@ -3,23 +3,24 @@ from app import app
 import os
 import yaml
 from utils import get_full_name
+from contacts.db_storage import ContactsDatabaseStorage
 
 class ContactsAppTest(unittest.TestCase):
     def setUp(self):
         self.client = app.test_client()
-        app.config["TESTING"] = True
+        # app.config["TESTING"] = True
 
         self.set_up_test_storage()
 
 
-
     def set_up_test_storage(self):
-         # Setting up the directory and empty file for the contacts data
-        root_dir = os.path.abspath(os.path.dirname(__name__))
-        data_dir = os.path.join(root_dir, 'tests', 'data')
-        os.makedirs(data_dir, exist_ok=True)
+        # Setting up the directory and empty file for the contacts data
+        # root_dir = os.path.abspath(os.path.dirname(__name__))
+        # data_dir = os.path.join(root_dir, 'tests', 'data')
+        # os.makedirs(data_dir, exist_ok=True)
 
-        self.contacts_file_path = os.path.join(data_dir, 'contacts.yaml')
+        # self.contacts_file_path = os.path.join(data_dir, 'contacts.yaml')
+        self.storage = ContactsDatabaseStorage(is_testing_environment=True)
 
     def contact_not_found_response(self, response):
         self.assertEqual(response.status_code, 302)
@@ -27,8 +28,10 @@ class ContactsAppTest(unittest.TestCase):
         self.assertIn('not found', follow_response.get_data(as_text=True))
 
     def create_test_data(self, test_data):
-        with open(self.contacts_file_path, 'w') as file:
-            yaml.dump(test_data, file)
+        for contact in test_data:
+            self.storage.create_new_contact(**contact)
+        # with open(self.contacts_file_path, 'w') as file:
+        #     yaml.dump(test_data, file)
 
     # ---- CONTACT LIST TESTS ------
     def test_contact_list_success(self):
@@ -416,8 +419,9 @@ class ContactsAppTest(unittest.TestCase):
 
 
     def tearDown(self):
-        if os.path.exists(self.contacts_file_path):
-            os.remove(self.contacts_file_path)
+        # Call storage.destroy_data()
+        self.storage.destroy_data()
+        self.storage.close_connection()
 
 if __name__ == '__main__':
     unittest.main()

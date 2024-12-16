@@ -97,6 +97,9 @@ class ContactsFileStorage:
 
         return new_contact['id']
 
+    def destroy_data(self):
+        if os.path.exists(self._file_path):
+            os.remove(self._file_path)
 
 
 
