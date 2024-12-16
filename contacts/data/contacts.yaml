@@ -9,7 +9,7 @@
   id: 4619d5d9-735a-49d2-9c81-fcd3d2d8a698
   last_name: Wannaby
   middle_names: kathleen
-  phone_number: '4444'
+  phone_number: '444444444'
 - email_address: kat@aol.com
   first_name: Katy
   id: 28be9195-9f46-48d7-8d4b-ecb551b895fe
@@ -28,9 +28,3 @@
   last_name: Malcolmae
   middle_names: Jr.
   phone_number: '11111111111'
-- email_address: null
-  first_name: John
-  id: baad21fc-4dcf-4f23-b80f-cc423410bc4f
-  last_name: Doe
-  middle_names: Unknown
-  phone_number: '1123123123'

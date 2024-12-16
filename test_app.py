@@ -9,8 +9,12 @@ class ContactsAppTest(unittest.TestCase):
         self.client = app.test_client()
         app.config["TESTING"] = True
 
+        self.set_up_test_storage()
 
-        # Setting up the directory and empty file for the contacts data
+
+
+    def set_up_test_storage(self):
+         # Setting up the directory and empty file for the contacts data
         root_dir = os.path.abspath(os.path.dirname(__name__))
         data_dir = os.path.join(root_dir, 'tests', 'data')
         os.makedirs(data_dir, exist_ok=True)
