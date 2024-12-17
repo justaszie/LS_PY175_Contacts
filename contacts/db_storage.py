@@ -123,10 +123,10 @@ class ContactsDatabaseStorage:
         self,
         cursor,
         first_name,
-        middle_names,
-        last_name,
-        phone_number,
-        email_address
+        middle_names=None,
+        last_name=None,
+        phone_number=None,
+        email_address=None
     ):
         # with self.connection:
         #     with self.connection.cursor(cursor_factory=DictCursor) as cursor:
