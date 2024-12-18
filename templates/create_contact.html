@@ -16,16 +16,46 @@
             <input type="text" id="last_name" name="last_name" value="{{ request.form.last_name }}"/>
         </div>
         <div class="contact-input">
-            <label for="phone_number">Phone number: </label>
-            <input type="tel" id="phone_number" name="phone_number" value="{{ request.form.phone_number }}"/>
-        </div>
-        <div class="contact-input">
             <label for="email_address">Email Address: </label>
             <input type="email" id="email_address" name="email_address" value="{{ request.form.email_address }}"/>
+        </div>
+
+
+        <p>Phone Number(s)</p>
+        <div class="contact-input">
+            <label for="phone_number_1">Phone number 1: </label>
+            <input type="tel" id="phone_number_1" name="phone_number_1" value="{{ request.form.phone_number_1 }}"/>
+            <select id="phone_number_1_type" name="phone_number_1_type" value="{{ request.form.phone_number_1_type }}">
+                <option value="personal">Personal</option>
+                <option value="home">Home</option>
+                <option value="work">Work</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+        <div class="contact-input">
+            <label for="phone_number_2">Phone number 2: </label>
+            <input type="tel" id="phone_number_2" name="phone_number_2" value="{{ request.form.phone_number_2 }}"/>
+            <select id="phone_number_2_type" name="phone_number_2_type" value="{{ request.form.phone_number_2_type }}">
+                <option value="personal">Personal</option>
+                <option value="home">Home</option>
+                <option value="work">Work</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+        <div class="contact-input">
+            <label for="phone_number_3">Phone number 3: </label>
+            <input type="tel" id="phone_number_3" name="phone_number_3" value="{{ request.form.phone_number_3 }}"/>
+            <select id="phone_number_3_type" name="phone_number_3_type" value="{{ request.form.phone_number_3_type }}">
+                <option value="personal">Personal</option>
+                <option value="home">Home</option>
+                <option value="work">Work</option>
+                <option value="other">Other</option>
+            </select>
         </div>
         <div class="submit-form">
             <input type="submit" value="Create" />
         </div>
+
     </form>
     <footer>
         <div>

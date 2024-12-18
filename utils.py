@@ -9,7 +9,7 @@ def get_full_name(contact):
     return ' '.join(
         (first_name,
          middle_names if middle_names else '',
-         last_name if last_name else ''))
+         last_name if last_name else '')).rstrip()
 
 
 def add_full_name(contacts):
@@ -61,11 +61,20 @@ def errors_for_phone_num(phone_number):
     errors = []
 
     if not phone_number.isdigit():
-        errors.append('Phone number must be digits only')
+        errors.append('Phone numbers must be digits only')
     if len(phone_number) < 6:
-        errors.append('Phone number must be at least 6 digits')
+        errors.append('Phone numbers must be at least 6 digits')
 
     return errors
+
+# def errors_for_phone_num_type(phone_number_type):
+#     errors = []
+#     phone_number_type = phone_number_type.strip() if phone_number_type else None
+
+#     if not phone_number_type:
+#         return []
+
+#     errors = []
 
 def errors_for_email_addr(email_address):
     email_address = email_address.strip() if email_address else None

@@ -33,6 +33,36 @@ class ContactsDatabaseStorage:
                    else 'test_contact_list')
 
         self.connection = psycopg2.connect(f'dbname={db_name}')
+        self.setup_schema()
+
+    @db_query()
+    def setup_schema(self, cursor):
+
+        cursor.execute(
+            """
+            SELECT 1
+            FROM information_schema.tables
+            WHERE table_schema = 'public'
+            AND table_name = 'contacts'
+            """
+        )
+        if cursor.rowcount < 1:
+            cursor.execute(
+                r"""
+                CREATE TABLE IF NOT EXISTS contacts (
+                    id SERIAL PRIMARY KEY,
+                    first_name TEXT NOT NULL,
+                    middle_names TEXT,
+                    last_name TEXT,
+                    phone_number TEXT,
+                    email_address TEXT,
+                    CHECK(LENGTH(phone_number) >= 6),
+                    CHECK(phone_number SIMILAR TO '\d{6,}'),
+                    CHECK(position('@' in email_address) > 0)
+                )
+                """
+            )
+
 
     @db_query()
     def destroy_data(self, cursor):
@@ -125,8 +155,8 @@ class ContactsDatabaseStorage:
         first_name,
         middle_names=None,
         last_name=None,
-        phone_number=None,
-        email_address=None
+        email_address=None,
+        phone_numbers=None
     ):
         # with self.connection:
         #     with self.connection.cursor(cursor_factory=DictCursor) as cursor:
@@ -136,20 +166,33 @@ class ContactsDatabaseStorage:
                 first_name,
                 middle_names,
                 last_name,
-                phone_number,
                 email_address
             )
-            VALUES (%s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s)
             RETURNING id
             """
         )
 
-        params = (
-            first_name, middle_names, last_name,
-            phone_number, email_address
-        )
-
+        params = (first_name, middle_names, last_name, email_address)
         cursor.execute(query, params)
+
+        created_contact_id = cursor.fetchone()[0]
+
+        query = dedent(
+            """
+            INSERT INTO phone_numbers(number_value, number_type, contact_id)
+            VALUES (%s, %s, %s)
+            """
+        )
+        for phone_num in phone_numbers:
+            params = (
+                phone_num['number_value'],
+                phone_num['number_type'],
+                created_contact_id,
+            )
+            cursor.execute(query, params)
+
         # Returning the ID of the new contact so that the app
         # can redirect to the details of the contact
-        return cursor.fetchone()[0]
+        return created_contact_id
+

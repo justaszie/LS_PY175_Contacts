@@ -39,16 +39,37 @@ app.secret_key = secrets.token_hex(32)
 #             raise InternalServerError('Problem while loading contacts. Try again later')
 
 def errors_in_contact_data(form_data):
+    # error_checkers = {
+    #     'first_name': errors_for_first_name,
+    #     'phone_number_1': errors_for_phone_num,
+    #     'phone_number_1_type': errors_for_phone_num,
+    #     'email_address': errors_for_email_addr,
+    # }
     error_checkers = {
-        'first_name': errors_for_first_name,
-        'phone_number': errors_for_phone_num,
-        'email_address': errors_for_email_addr,
+        errors_for_first_name: ('first_name', ),
+        errors_for_email_addr: ('email_address', ),
+        errors_for_phone_num: (
+            'phone_number_1',
+            'phone_number_2',
+            'phone_number_3'
+        ),
+        # To make it simpler, we rely on DB check for the phone type value.
+        # It's very unlikely that the type will be wrong if the form
+        # is submitted ia UI
+
+        # errors_for_phone_num_type: (
+        #     'phone_number_1_type',
+        #     'phone_number_2_type',
+        #     'phone_number_3_type'
+        # )
     }
     errors = []
-    for attribute_name, error_checker in error_checkers.items():
-        attribute_value = form_data.get(attribute_name)
-        attribute_errors = error_checker(attribute_value)
-        errors.extend(attribute_errors)
+    # TODO - if multiple attrs, run checker for each
+    for error_checker, attributes,  in error_checkers.items():
+        for attribute_name in attributes:
+            attribute_value = form_data.get(attribute_name)
+            attribute_errors = error_checker(attribute_value)
+            errors.extend(attribute_errors)
 
     return errors if errors else None
 
@@ -57,7 +78,6 @@ def get_clean_contact_data(form_data):
         'first_name',
         'middle_names',
         'last_name',
-        'phone_number',
         'email_address',
     )
 
@@ -66,6 +86,24 @@ def get_clean_contact_data(form_data):
         key: value.strip() if value and not value.isspace() else None
         for key, value in contact_data.items()
     }
+
+    # TODO
+    phone_nums = []
+    phone_num_attributes = (
+        ('phone_number_1', 'phone_number_1_type'),
+        ('phone_number_2', 'phone_number_2_type'),
+        ('phone_number_3', 'phone_number_3_type'),
+    )
+    for value_attr, type_attr in phone_num_attributes:
+        value = form_data.get(value_attr)
+        type = form_data.get(type_attr)
+        if value and not value.isspace():
+            phone_nums.append({
+                'number_value': value,
+                'number_type': type.lower(),
+            })
+
+    contact_data['phone_numbers'] = phone_nums
 
     return contact_data
 

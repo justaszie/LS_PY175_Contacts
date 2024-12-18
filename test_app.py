@@ -242,7 +242,7 @@ class ContactsAppTest(unittest.TestCase):
         response = self.client.post(f'/contacts/{test_id_to_delete}/delete',
                                     follow_redirects=True)
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn(f'{test_id_to_delete}', response.get_data(as_text=True))
+        self.assertNotIn(f'/contacts/{test_id_to_delete}', response.get_data(as_text=True))
         self.assertIn(f'{test_id_to_remain}', response.get_data(as_text=True))
 
     # TODO - think about handling the IDs of wrong format
