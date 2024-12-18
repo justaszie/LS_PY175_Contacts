@@ -157,11 +157,14 @@ def home(contacts):
     contacts = [ {'id': contact['id'], 'full_name': contact['full_name']} for contact in contacts ]
     return render_template('contact_list.html', contacts=contacts)
 
-@app.route('/contacts/<contact_id>')
+@app.route('/contacts/<int:contact_id>')
 @requires_contact
 def view_contact(contacts, contact, contact_id):
     contact['full_name'] = get_full_name(contact)
-    return render_template('contact_details.html', contact=contact)
+    # For now, the number of phone numbers is fixed to 3 in the app.
+    # So we only take 3 first results from the storage
+    phone_numbers = g.storage.get_phone_numbers(contact_id)[:3]
+    return render_template('contact_details.html', contact=contact, phone_numbers=phone_numbers)
 
 @app.route('/contacts/new')
 def new_contact():
@@ -191,7 +194,8 @@ def create_contact():
 @requires_contact
 def edit_contact(contacts, contact, contact_id):
     if request.method == 'GET':
-        return render_template('edit_contact.html', contact=contact)
+        phone_numbers = g.storage.get_phone_numbers(contact_id)
+        return render_template('edit_contact.html', contact=contact, phone_numbers=phone_numbers)
 
     elif request.method == 'POST':
         errors = errors_in_contact_data(request.form)
@@ -201,7 +205,9 @@ def edit_contact(contacts, contact, contact_id):
 
             contact = {'id': contact['id']} | request.form
 
-            return render_template('edit_contact.html', contact=contact), 422
+            phone_numbers = [{key: value} for key, value in request.form.items() if 'phone_number' in key ]
+
+            return render_template('edit_contact.html', contact=contact, phone_numbers=phone_numbers), 422
 
         # updated_data = {'id':contact['id']} | get_clean_contact_data(request.form)
         updated_data = get_clean_contact_data(request.form)

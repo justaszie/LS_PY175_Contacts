@@ -5,8 +5,18 @@
 <p><strong>First name(s): </strong><span>{{ contact.first_name }}</span></p>
 {% if 'middle_names' in contact and contact.middle_names is not none %} <p><strong>Middle name(s): </strong><span>{{ contact.middle_names }}</span></p>{% endif %}
 {% if 'last_name' in contact and contact.last_name is not none %}<p><strong>Last name(s): </strong><span>{{ contact.last_name }}</span></p>{% endif %}
-{% if 'phone_number' in contact and contact.phone_number is not none %}<p><strong>Phone number: </strong><span>{{ contact.phone_number }}</span></p>{% endif %}
 {% if 'email_address' in contact and contact.email_address is not none %}<p><strong>Email address: </strong><span>{{ contact.email_address  }}</span></p>{% endif %}
+<!-- TODO: replace with logic that checks phone numbers -->
+{% if phone_numbers is not none and (phone_numbers | length > 0) %}
+    <p><strong>Phone Numbers</strong></p>
+    <ul>
+        {% for phone_num in phone_numbers %}
+            <li>{{ phone_num.number_value }} ({{ phone_num.number_type | capitalize }})</li>
+            <!-- <p><strong>Phone number: </strong><span>{{ contact.phone_number }}</span></p> -->
+        {% endfor %}
+    </ul>
+
+{% endif %}
 <div>
     <div class="contact-list-cta">
         <a href="{{ url_for('edit_contact', contact_id=contact.id)}}"><button>Edit</button></a>

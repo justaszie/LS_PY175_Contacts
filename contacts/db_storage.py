@@ -196,3 +196,14 @@ class ContactsDatabaseStorage:
         # can redirect to the details of the contact
         return created_contact_id
 
+    @db_query(DictCursor)
+    def get_phone_numbers(self, cursor, contact_id):
+        query = dedent(
+            """
+            SELECT *
+            FROM phone_numbers
+            WHERE contact_id = %s
+            """
+        )
+        cursor.execute(query, (contact_id, ))
+        return [dict(row) for row in cursor.fetchall()]
