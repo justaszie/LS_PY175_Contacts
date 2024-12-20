@@ -23,33 +23,36 @@
         <p>Phone Number(s)</p>
         <div class="contact-input">
             <label for="phone_number_1">Phone number 1: </label>
-            <input type="tel" id="phone_number_1" name="phone_number_1" value="{{ phone_numbers[0].number_value if (phone_numbers | length > 0) else '' }}"/>
-            <select id="phone_number_1_type" name="phone_number_1_type" value="{{ phone_numbers[0].number_type if (phone_numbers | length > 0) else '' }}">
-                <option value="personal">Personal</option>
-                <option value="home">Home</option>
-                <option value="work">Work</option>
-                <option value="other">Other</option>
+            <input type="tel" id="phone_number_1" name="phone_number_1" value="{{ phone_numbers[0].number_value }}"/>
+            <select id="phone_number_1_type" name="phone_number_1_type" value="{{ phone_numbers[0].number_type }}">
+                <option value="personal" {{ 'selected' if phone_numbers[0].number_type == 'personal' else '' }}>Personal</option>
+                <option value="home" {{ 'selected' if phone_numbers[0].number_type == 'home' else ''}}>Home</option>
+                <option value="work" {{ 'selected' if phone_numbers[0].number_type == 'work' else ''}}>Work</option>
+                <option value="other" {{ 'selected' if phone_numbers[0].number_type == 'other' else ''}}>Other</option>
             </select>
+            <input type="hidden" name="phone_number_1_id" value="{{ phone_numbers[0].id if phone_numbers[0].id else '' }}"
         </div>
         <div class="contact-input">
             <label for="phone_number_2">Phone number 2: </label>
-            <input type="tel" id="phone_number_2" name="phone_number_2" value="{{ phone_numbers[1].number_value if (phone_numbers | length > 1) else '' }}"/>
-            <select id="phone_number_2_type" name="phone_number_2_type" value="{{ phone_numbers[1].number_type if (phone_numbers | length > 1) else '' }}">
-                <option value="personal">Personal</option>
-                <option value="home">Home</option>
-                <option value="work">Work</option>
-                <option value="other">Other</option>
+            <input type="tel" id="phone_number_2" name="phone_number_2" value="{{ phone_numbers[1].number_value }}"/>
+            <select id="phone_number_2_type" name="phone_number_2_type" value="">
+                <option value="personal" {{ 'selected' if phone_numbers[1].number_type == 'personal' else '' }}>Personal</option>
+                <option value="home" {{ 'selected' if phone_numbers[1].number_type == 'home' else ''}}>Home</option>
+                <option value="work" {{ 'selected' if phone_numbers[1].number_type == 'work' else ''}}>Work</option>
+                <option value="other" {{ 'selected' if phone_numbers[1].number_type == 'other' else ''}}>Other</option>
             </select>
+            <input type="hidden" name="phone_number_2_id" value="{{ phone_numbers[1].id if phone_numbers[1].id else '' }}"
         </div>
         <div class="contact-input">
             <label for="phone_number_3">Phone number 3: </label>
-            <input type="tel" id="phone_number_3" name="phone_number_3" value="{{ phone_numbers[2].number_value if (phone_numbers | length > 2) else '' }}"/>
-            <select id="phone_number_3_type" name="phone_number_3_type" value="{{ phone_numbers[2].number_type if (phone_numbers | length > 2) else '' }}">
-                <option value="personal">Personal</option>
-                <option value="home">Home</option>
-                <option value="work">Work</option>
-                <option value="other">Other</option>
+            <input type="tel" id="phone_number_3" name="phone_number_3" value="{{ phone_numbers[2].number_value }}"/>
+            <select id="phone_number_3_type" name="phone_number_3_type" value="{{ phone_numbers[2].number_type }}">
+                <option value="personal" {{ 'selected' if phone_numbers[2].number_type == 'personal' else '' }}>Personal</option>
+                <option value="home" {{ 'selected' if phone_numbers[2].number_type == 'home' else ''}}>Home</option>
+                <option value="work" {{ 'selected' if phone_numbers[2].number_type == 'work' else ''}}>Work</option>
+                <option value="other" {{ 'selected' if phone_numbers[2].number_type == 'other' else ''}}>Other</option>
             </select>
+            <input type="hidden" name="phone_number_3_id" value="{{ phone_numbers[2].id if phone_numbers[2].id else '' }}"
         </div>
         <div class="submit-form">
             <input type="submit" value="Update" />

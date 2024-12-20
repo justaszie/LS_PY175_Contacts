@@ -11,6 +11,12 @@ def get_full_name(contact):
          middle_names if middle_names else '',
          last_name if last_name else '')).rstrip()
 
+def default_phone_number_data():
+    return {
+        'number_value': '',
+        'number_type': 'personal',
+        'id': None
+    }
 
 def add_full_name(contacts):
     if contacts is not None:

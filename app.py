@@ -73,7 +73,27 @@ def errors_in_contact_data(form_data):
 
     return errors if errors else None
 
-def get_clean_contact_data(form_data):
+def get_phone_nums_from_form(form_data):
+    phone_nums = []
+    phone_num_attributes = (
+        ('phone_number_1', 'phone_number_1_type', 'phone_number_1_id'),
+        ('phone_number_2', 'phone_number_2_type', 'phone_number_2_id'),
+        ('phone_number_3', 'phone_number_3_type', 'phone_number_3_id'),
+    )
+    for value_attr, type_attr, id_attr in phone_num_attributes:
+        value = form_data.get(value_attr)
+        type = form_data.get(type_attr)
+        id = form_data.get(id_attr)
+        # if value and not value.isspace():
+        phone_nums.append({
+            'number_value': value,
+            'number_type': type.lower(),
+            'id': id
+        })
+
+    return phone_nums
+
+def get_contact_data_from_form(form_data):
     attributes = (
         'first_name',
         'middle_names',
@@ -87,23 +107,7 @@ def get_clean_contact_data(form_data):
         for key, value in contact_data.items()
     }
 
-    # TODO
-    phone_nums = []
-    phone_num_attributes = (
-        ('phone_number_1', 'phone_number_1_type'),
-        ('phone_number_2', 'phone_number_2_type'),
-        ('phone_number_3', 'phone_number_3_type'),
-    )
-    for value_attr, type_attr in phone_num_attributes:
-        value = form_data.get(value_attr)
-        type = form_data.get(type_attr)
-        if value and not value.isspace():
-            phone_nums.append({
-                'number_value': value,
-                'number_type': type.lower(),
-            })
-
-    contact_data['phone_numbers'] = phone_nums
+    contact_data['phone_numbers'] = get_phone_nums_from_form(form_data)
 
     return contact_data
 
@@ -180,7 +184,7 @@ def create_contact():
         return render_template('create_contact.html'), 422
 
     # contact = get_clean_contact_data(request.form) | {'id':str(uuid4())}
-    contact = get_clean_contact_data(request.form)
+    contact = get_contact_data_from_form(request.form)
     new_id = g.storage.create_new_contact(**contact)
 
     # contacts = load_contacts()
@@ -190,11 +194,22 @@ def create_contact():
     flash(f'{get_full_name(contact)} has been added to your contacts', 'success')
     return redirect(url_for('view_contact', contact_id=new_id))
 
-@app.route('/contacts/<contact_id>/edit', methods=['GET', 'POST'])
+@app.route('/contacts/<int:contact_id>/edit', methods=['GET', 'POST'])
 @requires_contact
 def edit_contact(contacts, contact, contact_id):
     if request.method == 'GET':
-        phone_numbers = g.storage.get_phone_numbers(contact_id)
+        phone_numbers_data = g.storage.get_phone_numbers(contact_id)
+
+        # We only support 3 phone numbers in the frontend.
+        # If there are less than 3 phone numbers in the database,
+        # We populate the remaining fields with default data
+
+        phone_numbers = [
+            phone_numbers_data[i] if len(phone_numbers_data) > i
+            else default_phone_number_data()
+            for i in range(3)
+        ]
+
         return render_template('edit_contact.html', contact=contact, phone_numbers=phone_numbers)
 
     elif request.method == 'POST':
@@ -204,18 +219,14 @@ def edit_contact(contacts, contact, contact_id):
                 flash(error, 'error')
 
             contact = {'id': contact['id']} | request.form
-
-            phone_numbers = [{key: value} for key, value in request.form.items() if 'phone_number' in key ]
+            phone_numbers = get_phone_nums_from_form(request.form)
 
             return render_template('edit_contact.html', contact=contact, phone_numbers=phone_numbers), 422
 
         # updated_data = {'id':contact['id']} | get_clean_contact_data(request.form)
-        updated_data = get_clean_contact_data(request.form)
+        updated_data = get_contact_data_from_form(request.form)
 
         g.storage.update_one_contact(contact_id, **updated_data)
-        # for existing_contact in contacts:
-        #     if existing_contact['id'] == contact_id:
-        #         existing_contact.update(updated_data)
 
         # update_contacts(contacts)
 
@@ -223,7 +234,7 @@ def edit_contact(contacts, contact, contact_id):
         return redirect(url_for('view_contact', contact_id=contact_id))
 
 
-@app.route('/contacts/<contact_id>/delete', methods=['POST'])
+@app.route('/contacts/<int:contact_id>/delete', methods=['POST'])
 @requires_contact
 def delete_contact(contacts, contact, contact_id):
     g.storage.delete_one_contact(contact_id)
